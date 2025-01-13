@@ -133,7 +133,7 @@
         const randomAlphabet = document.getElementById('random_alphabet');
         const ctx = canvas.getContext('2d');
         const toolbar = document.getElementById('toolbar');
-        const alphabets = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+        const alphabets = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
         let isPainting = false;
         let speech = new SpeechSynthesisUtterance();
         speech.lang = "en";
@@ -174,7 +174,13 @@
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 const alphabet = alphabets[Math.floor(Math.random() * alphabets.length)];
                 randomAlphabet.textContent = alphabet;
-                speech.text = alphabet.charCodeAt(0) <= 90 ? `Capital ${alphabet}` : `Small ${alphabet}`;
+                if (alphabet.charCodeAt(0) >= 48 && alphabet.charCodeAt(0) <= 57) {
+                    speech.text = `Number ${alphabet}`;
+
+                } else {
+                    speech.text = alphabet.charCodeAt(0) <= 90 ? `Capital ${alphabet}` : `Small ${alphabet}`;
+
+                }
                 window.speechSynthesis.speak(speech);
             }
 
