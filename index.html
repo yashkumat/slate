@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description"
+        content="Slate - A fun and interactive app for kids to learn alphabets and practice writing like on a slate.">
+    <meta name="keywords" content="Slate, Kids, Alphabets, Learn, Chalkboard, Interactive Learning">
+    <meta name="viewport"
+        content="target-densitydpi=device-dpi, width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <meta name="author" content="Yash Kumat">
+    <link rel="icon" href="icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap" rel="stylesheet">
+    <title>Slate - Learn Alphabets</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #2b2b2b;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Poppins', cursive;
+        }
+
+        h1 {
+            font-size: 2em;
+            color: #fff;
+            margin: 10px 0;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #toolbar {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            font-size: 1em;
+            padding: 5px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #33FF57;
+            color: #555;
+            box-shadow: 0 4px #388e3c;
+            transition: transform 0.1s;
+        }
+
+        button:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px #388e3c;
+        }
+
+        button.clear {
+            color: #2b2b2b;
+            background-color: #fff;
+            box-shadow: 0 4px #555;
+        }
+
+        button.speak {
+            background-color: #2196f3;
+            box-shadow: 0 4px #1976d2;
+        }
+
+        .slate {
+            position: relative;
+            width: 90%;
+            max-width: 800px;
+            height: 400px;
+            background-color: #333333;
+            border: 5px solid #555;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            border-image: linear-gradient(to right, #FF5733, #33FF57, #2196f3) 1;
+            overflow: hidden;
+        }
+
+        #random_alphabet {
+            position: absolute;
+            font-size: 150px;
+            color: white;
+            opacity: 0.3;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+
+        <div class="slate">
+            <span id="random_alphabet">A</span>
+            <canvas id="drawing-board"></canvas>
+        </div>
+        <div id="toolbar">
+            <button id="next">Next</button>
+            <button id="clear" class="clear">Erase</button>
+            <button id="speak" class="speak">Speak</button>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('drawing-board');
+        const randomAlphabet = document.getElementById('random_alphabet');
+        const ctx = canvas.getContext('2d');
+        const toolbar = document.getElementById('toolbar');
+        const alphabets = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+        let isPainting = false;
+        let speech = new SpeechSynthesisUtterance();
+        speech.lang = "en";
+
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        const draw = (e) => {
+            if (!isPainting) return;
+            ctx.strokeStyle = 'white'; // Chalk color
+            ctx.lineWidth = 10;
+            ctx.lineCap = 'round';
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+        };
+
+        canvas.addEventListener('pointerdown', () => {
+            isPainting = true;
+            ctx.beginPath();
+        });
+
+        canvas.addEventListener('pointerup', () => {
+            isPainting = false;
+            ctx.closePath();
+        });
+
+        canvas.addEventListener('pointermove', draw);
+
+        toolbar.addEventListener('click', (e) => {
+            if (e.target.id === 'next') {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const alphabet = alphabets[Math.floor(Math.random() * alphabets.length)];
+                randomAlphabet.textContent = alphabet;
+                speech.text = alphabet.charCodeAt(0) <= 90 ? `Capital ${alphabet}` : `Small ${alphabet}`;
+                window.speechSynthesis.speak(speech);
+            }
+
+            if (e.target.id === 'clear') {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+
+            if (e.target.id === 'speak') {
+                if (speech.text == "") {
+                    speech.text = 'Capital A'
+                }
+                window.speechSynthesis.speak(speech);
+            }
+        });
+    </script>
+</body>
+
+</html>
