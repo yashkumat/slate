@@ -146,8 +146,24 @@
             canvas.height = canvas.offsetHeight;
         }
 
+        const getTouchPosition = (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches ? e.touches[0] : e;
+            return {
+                x: touch.clientX - rect.left,
+                y: touch.clientY - rect.top,
+            };
+        };
+
         window.addEventListener('resize', resizeCanvas);
 
+        const startDrawing = (e) => {
+            isPainting = true;
+            ctx.beginPath();
+            const { x, y } = getTouchPosition(e);
+            ctx.moveTo(x, y);
+        };
+        
         const draw = (e) => {
             if (!isPainting) return;
             ctx.strokeStyle = 'white'; // Chalk color
@@ -157,17 +173,17 @@
             ctx.stroke();
         };
 
-        canvas.addEventListener('pointerdown', () => {
-            isPainting = true;
-            ctx.beginPath();
-        });
-
-        canvas.addEventListener('pointerup', () => {
+        const stopDrawing = () => {
             isPainting = false;
             ctx.closePath();
-        });
+        };
 
+        canvas.addEventListener('pointerdown', startDrawing);
         canvas.addEventListener('pointermove', draw);
+        canvas.addEventListener('pointerup', stopDrawing);
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchmove', draw);
+        canvas.addEventListener('touchend', stopDrawing);
 
         toolbar.addEventListener('click', (e) => {
             if (e.target.id === 'next') {
